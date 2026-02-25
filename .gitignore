@@ -1,0 +1,8 @@
+# Composer (local install)
+composer.phar
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
