@@ -1,0 +1,9 @@
+{
+    "name": "finance-laravel-react/root",
+    "description": "Finance app - Laravel + Next.js monorepo",
+    "autoload": {
+        "psr-4": {
+            "App\\": "backend/app/"
+        }
+    }
+}
