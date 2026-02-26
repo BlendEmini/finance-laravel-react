@@ -18,16 +18,19 @@ class UserController extends Controller
             'password' => $password,
             'role' => $role,
         ];
-        $input = $request->all();
+        $input = $request->only(['name', 'email', 'password', 'role']);
         $validator = Validator::make($input, [
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required',
-            'role' => 'required|in:admin,client,freelancer',
+            'role' => 'required|in:client,freelancer',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
+        // Admin can only be created manually (seeder, tinker, etc.)
+        $input['role'] = $input['role'] ?? 'client';
+        
         $user = \App\Models\User::create($input);
         Auth::login($user);
         return response()->json($user, 201);
