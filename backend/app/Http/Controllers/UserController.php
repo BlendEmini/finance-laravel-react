@@ -30,26 +30,50 @@ class UserController extends Controller
         }
         // Admin can only be created manually (seeder, tinker, etc.)
         $input['role'] = $input['role'] ?? 'client';
-        
+
         $user = \App\Models\User::create($input);
-        Auth::login($user);
-        return response()->json($user, 201);
+        $token = $user->createToken('auth')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'Bearer',
+        ], 201);
     }
 
-    public function login(Request $request){
-        $email = $request->input('email');
-        $password = $request->input('password');
-        $user = \App\Models\User::where('email', $email)->first();
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->only(['email', 'password']), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
         }
-        if (!Auth::attempt(['email' => $email, 'password' => $password])) {
+
+        if (! Auth::attempt($request->only(['email', 'password']))) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
-        return response()->json($user, 200);
+
+        $user = $request->user();
+        $token = $user->createToken('auth')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'Bearer',
+        ]);
     }
-    public function logout(){
-        Auth::logout();
-        return response()->json(['message' => 'Logged out successfully'], 200);
+
+    public function me(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

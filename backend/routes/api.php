@@ -13,4 +13,8 @@ Route::get('/health', function (): JsonResponse {
 
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/logout', [UserController::class, 'logout']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
+    Route::get('/me', [UserController::class, 'me']);
+});
