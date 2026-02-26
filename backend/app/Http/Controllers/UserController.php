@@ -32,7 +32,7 @@ class UserController extends Controller
         Auth::login($user);
         return response()->json($user, 201);
     }
-    
+
     public function login(Request $request){
         $email = $request->input('email');
         $password = $request->input('password');
@@ -44,5 +44,9 @@ class UserController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
         return response()->json($user, 200);
+    }
+    public function logout(){
+        Auth::logout();
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 }
